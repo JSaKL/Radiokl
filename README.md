@@ -16,7 +16,7 @@ For audio streaming this sorfware uses FFplay media player (using the FFmpeg lib
 
 Notice that this works only on Linux and Mac. 
 
-This software uses FFplay so FFmpeg has to be installed on same the computer for audio streaming. 
+This software uses FFplay so FFmpeg has to be installed on the same computer for audio streaming. 
 
 ### Installing
 

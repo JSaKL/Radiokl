@@ -21,6 +21,7 @@ This software uses FFplay so FFmpeg has to be installed on same the computer for
 ### Installing
 
 * Clone or download this software
+* Install FFmpeg to get FFplay if needed
 * Build it with "cargo build --release" in the project root directory
 
 ### Executing program

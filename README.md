@@ -29,8 +29,8 @@ This software uses FFplay so FFmpeg has to be installed on the same computer for
 Notice that because this software is still very much in-progress the terminal window must be wide enough for the TUI part of this software to execute smoothly.
 
 * Execute the sofware in the target directory (/release/target)
-* The client (radio_client) starts the server automatically if it's not already running.
-* The server can be started also manually first.
+* The client (radio_client) starts the server automatically if it's not already running
+* The server can be started also manually first
 ```
 jsa@jsa-MacBookPro:~/devs/radiokl/target/release$ ./radio_client -h
 Usage: radio_client [OPTIONS] <COMMAND>
@@ -50,9 +50,11 @@ Options:
   -V, --version              Print version
 
 jsa@jsa-MacBookPro:~/devs/radiokl/target/release$ ./radio_client search jazz
+```
 
-Here's the list (partly) view output for the above command:
+Here's the output view (partly) for the above command:
 
+```
 (585 stations found) Playing now: -
 1: 101 SMOOTH JAZZ, Country: The United States Of America, Language: english
 2: Adroit Jazz Underground, Country: The United States Of America, Language: english

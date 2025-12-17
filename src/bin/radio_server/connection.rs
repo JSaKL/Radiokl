@@ -1,9 +1,9 @@
-use async_std::io::BufReader;
-use async_std::net::TcpStream;
-use async_std::prelude::*;
-use async_std::sync::{Arc, Mutex};
 use radioklw::utils::{self, RadioError, RadioResult};
 use radioklw::{Client, Server};
+use std::sync::Arc;
+use tokio::io::{AsyncWriteExt, BufReader};
+use tokio::net::TcpStream;
+use tokio::sync::Mutex;
 
 use crate::player;
 use crate::radio_api::Seeker;
@@ -29,14 +29,17 @@ impl Connection {
     }
 
     pub async fn handle(&mut self, socket: TcpStream) -> RadioResult<()> {
-        let sender = Arc::new(Sender::new(socket.clone()));
-        let buffered = BufReader::new(socket);
-        let mut from_client = utils::receive(buffered);
+        let (read_half, write_half) = socket.into_split();
+        let sender = Arc::new(Sender::new(write_half));
+        let mut buffered = BufReader::new(read_half);
 
-        while let Some(req_res) = from_client.next().await {
-            let request = req_res?;
+        loop {
+            let req_res = match utils::receive_one(&mut buffered).await? {
+                Some(req) => req,
+                None => break,
+            };
 
-            let result = match request {
+            let result = match req_res {
                 Client::Play { url } => {
                     if self.is_playing {
                         self.player.stop().await?;
@@ -88,10 +91,10 @@ impl Connection {
     }
 }
 
-pub struct Sender(Mutex<TcpStream>);
+pub struct Sender(Mutex<tokio::net::tcp::OwnedWriteHalf>);
 
 impl Sender {
-    pub fn new(client: TcpStream) -> Sender {
+    pub fn new(client: tokio::net::tcp::OwnedWriteHalf) -> Sender {
         Sender(Mutex::new(client))
     }
 

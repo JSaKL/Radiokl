@@ -1,5 +1,5 @@
-use async_std::net;
-use async_std::prelude::*;
+use tokio::net;
+//use tokio::io::{AsyncBufReadExt, BufReader};
 use clap::Parser;
 use connection::Connection;
 use radioklw::utils::RadioResult;
@@ -21,20 +21,17 @@ pub struct Args {
     addr: String,
 }
 
-fn main() -> RadioResult<()> {
+#[tokio::main]
+async fn main() -> RadioResult<()> {
     let args = Args::parse();
 
-    async_std::task::block_on(async {
-        let mut conn_handler = Connection::new().await?;
-        let listener = net::TcpListener::bind(args.addr).await?;
-        let mut new_connections = listener.incoming();
-        while let Some(socket_result) = new_connections.next().await {
-            let socket = socket_result?;
+    let mut conn_handler = Connection::new().await?;
+    let listener = net::TcpListener::bind(args.addr).await?;
 
-            log_error(conn_handler.handle(socket).await);
-        }
-        Ok(())
-    })
+    loop {
+        let (socket, _) = listener.accept().await?;
+        log_error(conn_handler.handle(socket).await);
+    }
 }
 
 fn log_error(result: RadioResult<()>) {

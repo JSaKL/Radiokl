@@ -193,9 +193,30 @@ impl StationViewer {
 
     async fn run(&mut self) -> RadioResult<()> {
         let mut stdout = stdout().into_raw_mode()?;
-        let stdin = stdin();
-        for key in stdin.keys() {
-            match key.unwrap_or(Key::Ctrl('q')) {
+
+        // Spawn a blocking task to read stdin keys
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+
+        tokio::task::spawn_blocking(move || {
+            let stdin = stdin();
+            for key in stdin.keys() {
+                if tx.send(key).is_err() {
+                    break;
+                }
+            }
+        });
+
+        // Process keys asynchronously
+        while let Some(key_result) = rx.recv().await {
+            let key = match key_result {
+                Ok(k) => k,
+                Err(e) => {
+                    eprintln!("Error reading key input: {}", e);
+                    Key::Ctrl('q')
+                }
+            };
+
+            match key {
                 Key::Ctrl('q') => {
                     break;
                 }

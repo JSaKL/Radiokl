@@ -1,59 +1,145 @@
 # Radiokl
 
-Radiokl is a simple command line application (for Linux and Mac) for searching and playing radio stations (with streaming links).
+> A simple command-line application for searching and playing internet radio stations
+
+Radiokl is a CLI application for Linux and Mac that lets you search, play, and manage internet radio stations directly from your terminal with an interactive TUI interface.
+
+## Features
+
+- 🔍 **Search radio stations** by name, country, and language
+- 🎵 **Stream audio** from thousands of stations worldwide
+- ⭐ **Save favorites** for quick access to your preferred stations
+- 🎛️ **Interactive TUI** with keyboard controls
+- 🖥️ **Client-server architecture** for efficient resource management
+- 🌐 **Powered by radio-browser API** for extensive station database
 
 ## Description
 
-The software consists of two parts: radio_client, which acts as a front end for this and radio_server (those are also names of the executables).
-The server part of this software uses radio-browser-api (https://api.radio-browser.info/) directly without 
-any third party libraries to get a list of all available servers (by doing a DNS-lookup of 'all.api.radio-browser.info' etc).
-Then it uses the selected server for searching radio stations in the internet.
-For audio streaming this sorfware uses FFplay media player (using the FFmpeg libraries and the SDL library).
+The software consists of two components:
+- **radio_client**: The front-end CLI/TUI interface for user interaction
+- **radio_server**: The back-end server handling API requests and station data
+
+The server component uses the [radio-browser API](https://api.radio-browser.info/) to discover available servers via DNS lookup (`all.api.radio-browser.info`) and searches for radio stations across the internet. Audio streaming is handled by **FFplay** media player (part of FFmpeg).
 
 ## Getting Started
 
-### Dependencies
+### Prerequisites
 
-Notice that this works only on Linux and Mac. 
+This software works on **Linux and macOS** only.
 
-This software uses FFplay so FFmpeg has to be installed on the same computer for audio streaming. 
+**Required:**
+- [FFmpeg](https://ffmpeg.org/) (includes FFplay for audio streaming)
+- [Rust](https://www.rust-lang.org/) (for building from source)
 
-### Installing
-
-* Clone or download this software
-* Install FFmpeg to get FFplay if needed
-* Build it with "cargo build --release" in the project root directory
-
-### Executing program
-
-Notice that because this software is still very much in-progress the terminal window must be wide enough for the TUI part of this software to execute smoothly.
-
-* Execute the sofware in the target directory (/release/target)
-* The client (radio_client) starts the server automatically if it's not already running
-* The server can be started also manually first
-```
-jsa@jsa-MacBookPro:~/devs/radiokl/target/release$ ./radio_client -h
-Usage: radio_client [OPTIONS] <COMMAND>
-
-Commands:
-  search       Search radio station
-  favs         Get radio station from saved favorites
-  stop         Stop the radio station stream
-  stop-server  Stop the radio stream server
-  help         Print this message or the help of the given subcommand(s)
-
-Options:
-  -c, --country <COUNTRY>    Country of the radio station to search
-  -l, --language <LANGUAGE>  Language of the radio station to search
-  -a, --addr <ADDR>          Stream connection address [default: localhost:8080]
-  -h, --help                 Print help
-  -V, --version              Print version
-
-jsa@jsa-MacBookPro:~/devs/radiokl/target/release$ ./radio_client search jazz
+To verify FFmpeg is installed:
+```bash
+ffplay -version
 ```
 
-Here's the output view (partly) for the above command:
+### Installation
 
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/Radiokl.git
+   cd Radiokl
+   ```
+
+2. **Install FFmpeg** (if not already installed)
+   
+   **macOS:**
+   ```bash
+   brew install ffmpeg
+   ```
+   
+   **Linux (Ubuntu/Debian):**
+   ```bash
+   sudo apt-get install ffmpeg
+   ```
+
+3. **Build the project**
+   ```bash
+   cargo build --release
+   ```
+
+4. **Executables location**
+   
+   After building, executables will be located in:
+   ```
+   target/release/radio_client
+   target/release/radio_server
+   ```
+
+### Usage
+
+The client automatically starts the server if it's not already running. You can also start the server manually first if preferred.
+
+#### Basic Commands
+
+**View help:**
+```bash
+./target/release/radio_client -h
+```
+
+**Search for stations:**
+```bash
+# Search by name
+./target/release/radio_client search jazz
+
+# Search by country
+./target/release/radio_client -c Finland search
+
+# Search by language
+./target/release/radio_client -l english search rock
+
+# Combine filters
+./target/release/radio_client -c France -l french search pop
+```
+
+**Access favorites:**
+```bash
+./target/release/radio_client favs
+```
+
+**Stop playback:**
+```bash
+./target/release/radio_client stop
+```
+
+**Stop the server:**
+```bash
+./target/release/radio_client stop-server
+```
+
+#### CLI Options
+
+| Option | Short | Long | Description | Default |
+|--------|-------|------|-------------|---------|
+| Country | `-c` | `--country` | Filter by country | - |
+| Language | `-l` | `--language` | Filter by language | - |
+| Address | `-a` | `--addr` | Server connection address | `localhost:8080` |
+| Help | `-h` | `--help` | Print help information | - |
+| Version | `-V` | `--version` | Print version | - |
+
+#### Interactive TUI Controls
+
+Once in the station list view, use these keyboard shortcuts:
+
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Navigate through stations |
+| `Ctrl-p` | Play selected station |
+| `Ctrl-s` | Stop playback |
+| `Ctrl-w` | Save station to favorites |
+| `Ctrl-d` | Delete from favorites (when in favs menu) |
+| `Ctrl-q` | Quit |
+
+#### Example Session
+
+```bash
+$ ./target/release/radio_client search jazz
+```
+
+**Output:**
 ```
 (585 stations found) Playing now: -
 1: 101 SMOOTH JAZZ, Country: The United States Of America, Language: english
@@ -66,5 +152,97 @@ Here's the output view (partly) for the above command:
 8: SMOOTH JAZZ 24/7, Country: The United States Of America, Language: english
 ...
 >>> Options: Ctrl-p to Play, Ctrl-s to Stop, Ctrl-w to Save, Ctrl-q to Quit
+```
+
+## Troubleshooting
+
+### Terminal window too narrow
+**Issue:** The TUI requires a wide terminal window to display properly.
+
+**Solution:** Resize your terminal window to at least 100 columns width, or maximize the window.
+
+### FFplay not found
+**Issue:** `ffplay: command not found` or similar error.
+
+**Solution:** Install FFmpeg:
+```bash
+# macOS
+brew install ffmpeg
+
+# Linux
+sudo apt-get install ffmpeg
+```
+
+### Server connection failed
+**Issue:** Cannot connect to the server at `localhost:8080`.
+
+**Solution:** 
+- The client should automatically start the server. If it doesn't, try starting it manually:
+  ```bash
+  ./target/release/radio_server &
+  ```
+- If port 8080 is in use, specify a different port:
+  ```bash
+  ./target/release/radio_client -a localhost:8081 search jazz
+  ```
+
+### No stations found
+**Issue:** Search returns no results.
+
+**Solution:**
+- Check your internet connection
+- Try broadening your search (use fewer filters)
+- The radio-browser API might be temporarily unavailable
+
+## Project Structure
 
 ```
+Radiokl/
+├── src/
+│   ├── bin/
+│   │   ├── radio_client/    # Client application
+│   │   │   ├── main.rs       # Entry point and CLI parsing
+│   │   │   ├── rclient.rs    # Client logic
+│   │   │   ├── chooser.rs    # TUI interface
+│   │   │   └── server_initializer.rs  # Server management
+│   │   └── radio_server/    # Server application
+│   ├── lib.rs               # Shared data structures
+│   └── utils.rs             # Shared utilities
+├── Cargo.toml
+└── README.md
+```
+
+## Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Report bugs** by opening an issue
+2. **Suggest features** or improvements
+3. **Submit pull requests** with bug fixes or new features
+
+When contributing code:
+- Follow Rust coding conventions
+- Test your changes thoroughly
+- Update documentation as needed
+
+## License
+
+This project is open source. Please add appropriate license information.
+
+## Acknowledgments
+
+- [radio-browser API](https://api.radio-browser.info/) for providing the extensive radio station database
+- [FFmpeg](https://ffmpeg.org/) for audio streaming capabilities
+- The Rust community for excellent async runtime libraries (Tokio, async-std)
+
+## Future Enhancements
+
+- [ ] Cross-platform support (Windows)
+- [ ] Multiple favorite lists/playlists
+- [ ] Station metadata display (now playing info)
+- [ ] Recording functionality
+- [ ] Configuration file support
+
+---
+
+**Note:** This software is in active development. The terminal window must be wide enough for the TUI to function properly.

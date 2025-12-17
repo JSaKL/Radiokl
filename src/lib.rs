@@ -1,5 +1,6 @@
 pub mod utils;
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -21,30 +22,26 @@ pub struct RadioStation {
     pub language: String,
     pub languagecodes: Option<String>,
     pub votes: i32,
-    #[cfg(feature = "chrono")]
-    pub lastchangetime_iso8601: Option<DateTime<Utc>>,
-    #[cfg(not(feature = "chrono"))]
+    //#[cfg(feature = "chrono")]
+    //pub lastchangetime_iso8601: Option<DateTime<Utc>>,
+    //#[cfg(not(feature = "chrono"))]
     pub lastchangetime_iso8601: Option<String>,
     pub codec: String,
     pub bitrate: u32,
     pub hls: i8,
     pub lastcheckok: i8,
-    #[cfg(feature = "chrono")]
     pub lastchecktime_iso8601: Option<DateTime<Utc>>,
-    #[cfg(feature = "chrono")]
     pub lastcheckoktime_iso8601: Option<DateTime<Utc>>,
-    #[cfg(feature = "chrono")]
     pub lastlocalchecktime_iso8601: Option<DateTime<Utc>>,
-    #[cfg(feature = "chrono")]
     pub clicktimestamp_iso8601: Option<DateTime<Utc>>,
-    #[cfg(not(feature = "chrono"))]
-    pub lastchecktime_iso8601: Option<String>,
-    #[cfg(not(feature = "chrono"))]
-    pub lastcheckoktime_iso8601: Option<String>,
-    #[cfg(not(feature = "chrono"))]
-    pub lastlocalchecktime_iso8601: Option<String>,
-    #[cfg(not(feature = "chrono"))]
-    pub clicktimestamp_iso8601: Option<String>,
+    //#[cfg(not(feature = "chrono"))]
+    //pub lastchecktime_iso8601: Option<String>,
+    //#[cfg(not(feature = "chrono"))]
+    //pub lastcheckoktime_iso8601: Option<String>,
+    //#[cfg(not(feature = "chrono"))]
+    //pub lastlocalchecktime_iso8601: Option<String>,
+    //#[cfg(not(feature = "chrono"))]
+    //pub clicktimestamp_iso8601: Option<String>,
     pub clickcount: u32,
     pub clicktrend: i32,
     pub ssl_error: Option<u8>,

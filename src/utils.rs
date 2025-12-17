@@ -1,4 +1,4 @@
-use async_std::prelude::*;
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::error::Error;
@@ -10,7 +10,7 @@ pub type RadioResult<T> = Result<T, RadioError>;
 
 pub async fn send_json<O, P>(sender: &mut O, packet: &P) -> RadioResult<()>
 where
-    O: async_std::io::Write + Unpin,
+    O: AsyncWriteExt + Unpin,
     P: Serialize,
 {
     let mut json = serde_json::to_string(&packet)?;
@@ -20,14 +20,18 @@ where
     Ok(())
 }
 
-pub fn receive<R, T>(receiver: R) -> impl Stream<Item = RadioResult<T>>
+pub async fn receive_one<R, T>(receiver: &mut R) -> RadioResult<Option<T>>
 where
-    R: async_std::io::BufRead + Unpin,
+    R: AsyncBufReadExt + Unpin,
     T: DeserializeOwned,
 {
-    receiver.lines().map(|line| -> RadioResult<T> {
-        let l = line?;
-        let msg = serde_json::from_str::<T>(&l)?;
-        Ok(msg)
-    })
+    let mut line = String::new();
+    let bytes_read = receiver.read_line(&mut line).await?;
+    
+    if bytes_read == 0 {
+        return Ok(None);
+    }
+    
+    let msg = serde_json::from_str::<T>(&line)?;
+    Ok(Some(msg))
 }

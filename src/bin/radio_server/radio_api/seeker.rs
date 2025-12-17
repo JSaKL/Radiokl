@@ -46,13 +46,19 @@ impl Seeker {
     }
 
     async fn api_server(dns_lookup_info: &str) -> Result<String, RadioError> {
-        let mut ips: Vec<IpAddr> = lookup_host(dns_lookup_info)?;
+        // Use spawn_blocking for DNS lookup to avoid blocking the async runtime
+        let dns_lookup_info = dns_lookup_info.to_string();
+        let mut ips: Vec<IpAddr> =
+            tokio::task::spawn_blocking(move || lookup_host(&dns_lookup_info)).await??;
+
         ips.shuffle(&mut thread_rng());
 
         let mut host = String::new();
 
         for ip in ips {
-            host = match lookup_addr(&ip) {
+            // Use spawn_blocking for reverse DNS lookup
+            let ip_clone = ip;
+            host = match tokio::task::spawn_blocking(move || lookup_addr(&ip_clone)).await? {
                 Ok(hostname) => hostname,
                 Err(err) => {
                     eprintln!("Reverse lookup_addr failed for {}: {}", ip, err);
